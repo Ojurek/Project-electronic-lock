@@ -1,7 +1,8 @@
 #include "drivers.h"
 
 #ifndef SIMULATION_PC
-Drivers::Drivers()
+Drivers::Drivers( QObject *parent )
+    : QObject(parent)
 {
     wiringPiSetupGpio();
 
@@ -19,9 +20,12 @@ Drivers::~Drivers()
 
 void Drivers::openLock()
 {
-    digitalWrite(PIN_OUT,0);
-    delay(3000);
-    digitalWrite(PIN_OUT,1);
+    digitalWrite( PIN_OUT, 0 );
+}
+
+void Drivers::closeLock()
+{
+    digitalWrite( PIN_OUT, 1 );
 }
 
 QString Drivers::getDoorStatus()
@@ -34,7 +38,8 @@ QString Drivers::getDoorStatus()
     return QString( DOOR_CLOSED );
 }
 #else
-Drivers::Drivers()
+Drivers::Drivers( QObject *parent )
+    : QObject( parent )
 {
     m_doorState = QString( DOOR_OPENED );
 }
@@ -46,6 +51,11 @@ Drivers::~Drivers()
 void Drivers::openLock()
 {
     qDebug()<<"Drivers inform: Lock is open!!!!!!";
+}
+
+void Drivers::closeLock()
+{
+    qDebug()<<"Drivers inform: Lock is close!!!!!!";
 }
 
 QString Drivers::getDoorStatus()

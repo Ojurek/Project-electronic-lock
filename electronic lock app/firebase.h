@@ -52,6 +52,8 @@ public slots:
 signals:
     //will be send after password will be positive verify
     void openRequest();
+    //will be send after password will be negatively verify
+    void wrongPassword();
 
 private:
 

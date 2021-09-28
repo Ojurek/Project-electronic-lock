@@ -37,7 +37,7 @@ bool Firebase::getAuthState()
 
 void Firebase::storeEvent( const char* event, const QString & newState)
 {
-    qDebug()<<"Store event"<<newState;
+    //qDebug()<<"Store event"<<newState;
     QString sUrl = STR_URL_EVENT + m_idToken;
 
     QVariantMap variantPayload;
@@ -55,7 +55,7 @@ void Firebase::storeEvent( const char* event, const QString & newState)
 
 void Firebase::signUserIn()
 {
-    qDebug()<<"signUserIn";
+    //qDebug()<<"signUserIn";
     QString signInEndpoint = STR_URL_SIGN_IN + m_apiKey;
 
     QVariantMap variantPayload;
@@ -76,7 +76,7 @@ void Firebase::signUserIn()
 
 void Firebase::refreshToken()
 {
-    qDebug()<<"call refreshToken";
+    //qDebug()<<"call refreshToken";
     QString signInEndpoint = STR_URL_REFRESH + m_apiKey;
 
     QVariantMap variantPayload;
@@ -96,13 +96,13 @@ void Firebase::refreshToken()
 
 void Firebase::signUserInReadyRead()
 {
-    qDebug()<<"signUserInReadyRead";
+    //qDebug()<<"signUserInReadyRead";
     QNetworkReply *networkReply = qobject_cast<QNetworkReply*>(sender());
     QByteArray response = networkReply->readAll();
 
     if ( response.isEmpty() || response.isNull() )
     {
-        qDebug()<<"is null";
+        //qDebug()<<"is null";
 
         signUserIn();
         return;
@@ -116,7 +116,7 @@ void Firebase::signUserInReadyRead()
 
        response = response.right( response.size()-response.indexOf("{") );
 
-       qDebug() << "Iterate over ";
+       //qDebug() << "Iterate over ";
         QJsonDocument jsonDocument = QJsonDocument::fromJson( response );
         QJsonObject json = jsonDocument.object();
         foreach(const QString& key, json.keys())
@@ -126,7 +126,7 @@ void Firebase::signUserInReadyRead()
 
         if ( jsonDocument.object().contains("error") )
         {
-            qDebug() << "Error occured!" << response;
+            //qDebug() << "Error occured!" << response;
             signUserIn();
             return;
         }
@@ -134,13 +134,13 @@ void Firebase::signUserInReadyRead()
         {
             m_idToken = jsonDocument.object().value("idToken").toString();
             m_refreshToken = jsonDocument.object().value("refresh_token").toString();
-            qDebug() << "User signed in successfully!";
+            //qDebug() << "User signed in successfully!";
 
             m_isAuth = true;
         }
                 else
         {
-        qDebug() << "Response from else :" << response;
+        //qDebug() << "Response from else :" << response;
         }
    }
    else
@@ -167,7 +167,7 @@ void Firebase::eventReplyReadyRead()
     {
 
         QByteArray response = replay->readAll();
-        qDebug() << "Event response was: " << response;
+        //qDebug() << "Event response was: " << response;
 
         if (response.indexOf( "event: auth_revoked\ndata: credential is no longer valid\n\nevent: cancel\ndata: Permission denied\n\n") == 0 )
         {
@@ -185,14 +185,14 @@ void Firebase::eventReplyReadyRead()
             jsonEnd   = jsonOnly.lastIndexOf("}");
             QByteArray jsonInsideOnly = jsonOnly.mid( jsonBegin, jsonEnd-jsonBegin+1 );
 
-            qDebug() << "jsonInsideOnly: " << jsonInsideOnly;
+            //qDebug() << "jsonInsideOnly: " << jsonInsideOnly;
 
             QJsonDocument jsonDocument = QJsonDocument::fromJson(jsonInsideOnly);
 
             QStringList listOfKeys = jsonDocument.object().keys();
             for (const auto & key : listOfKeys)
             {
-                qDebug() << key <<": "<<jsonDocument.object().value(key).toString();
+                //qDebug() << key <<": "<<jsonDocument.object().value(key).toString();
                 if ( (key==EVENT_OPEN_REQUEST) && (jsonDocument.object().value(key).toString().toUpper()==QString(OPEN_REQUEST).toUpper()) )
                 {
                     emit openRequest();
@@ -230,7 +230,7 @@ void Firebase::passwordReadyRead()
     //      .......
     //  }
 
-    qDebug()<<"Response from lockKeysReadyRead: "<<response;
+    //qDebug()<<"Response from lockKeysReadyRead: "<<response;
     QJsonDocument jsonDocument = QJsonDocument::fromJson( response );
     QJsonObject json = jsonDocument.object();
     //listOfJsonKeys included: {name1, name2, ....}
@@ -244,7 +244,7 @@ void Firebase::passwordReadyRead()
         //insideJson it is {"name":password}
         QJsonObject insideJson = json.value(name).toObject().value( child_key ).toObject();
         QString password = QString::number ( insideJson.value( name ).toInt() );
-        qDebug() << name <<": "<<password;
+        //qDebug() << name <<": "<<password;
 
         if ( password == m_typedPassword)
         {
@@ -260,9 +260,13 @@ void Firebase::passwordReadyRead()
     }
     if ( m_passwordOwner != QString("") )
     {
-        qDebug() <<m_passwordOwner<<" opened door";
+        //qDebug() <<m_passwordOwner<<" opened door";
         emit openRequest();
         //hier could be additional log function in Firebase
+    }
+    else
+    {
+        emit wrongPassword();
     }
 
 }

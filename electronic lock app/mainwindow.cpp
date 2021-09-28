@@ -1,17 +1,20 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
 {
-     Qt::WindowFlags flags;
-     flags =  Qt::Window | Qt::WindowTitleHint | Qt::CustomizeWindowHint;
-     this ->setWindowFlags(flags);
+
+    //https://stackoverflow.com/questions/38495900/how-to-make-qt-application-mainwindow-to-remain-always-on-top-of-other-windows-i
+
+     Qt::WindowFlags flags=this->windowFlags();
+     flags = flags & ~Qt::WindowMinimizeButtonHint;
+     this ->setWindowFlags(flags | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 
      QFont font;
      m_display = new QLineEdit("");
      m_display->setReadOnly(true);
-     m_display->setAlignment(Qt::AlignRight);
+     m_display->setAlignment(Qt::AlignCenter);
      font = m_display->font();
      font.setPointSize(45);
      m_display->setFont(font);
@@ -45,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_enterButton->setMinimumSize(200,50);
     connect( m_enterButton, &QPushButton::released, this, &MainWindow::handleEnterButton);
 
-    m_statusLabel1 = new QLabel("Status",this);
+    m_statusLabel1 = new QLabel("Door:",this);
     font = m_statusLabel1->font();
     font.setPointSize(45);
     m_statusLabel1->setFont(font);
@@ -77,9 +80,9 @@ MainWindow::MainWindow(QWidget *parent)
     layout->addWidget(m_statusLabel2, 5, 1,1,2);
 
    setLayout(layout);
-
    connect( &m_firebase, &Firebase::openRequest, this, &MainWindow::openLock );
-   setWindowTitle(tr("Electonic lock"));
+   connect( &m_firebase, &Firebase::wrongPassword, this, &MainWindow::negativeMessage );
+
 }
 
 void MainWindow::handleDigitButton()
@@ -129,6 +132,46 @@ void MainWindow::checkInput()
 
 void MainWindow::openLock()
 {
-   m_drivers.openLock();
-   m_firebase.storeEvent(EVENT_OPEN_REQUEST, OPEN_CONFIRMATION );
+    m_drivers.openLock();
+
+    QMessageBox msgBox;
+    msgBox.setText("Lock opened");
+    msgBox.show();
+
+    m_display->setText( "Lock opened" );
+    QPalette palette = m_display->palette();
+    palette.setColor( QPalette::Base, Qt::green );
+    m_display->setPalette( palette );
+
+    m_firebase.storeEvent(EVENT_OPEN_REQUEST, OPEN_CONFIRMATION );
+
+    QTime delay = QTime::currentTime().addSecs( OPEN_LOCK_TIME_SEC );
+        while (QTime::currentTime() < delay)
+            QCoreApplication::processEvents(QEventLoop::AllEvents);
+
+    m_drivers.closeLock();
+    palette.setColor( QPalette::Base, Qt::white );
+    m_display->setPalette( palette );
+    m_display->setText( "" );
+}
+
+void MainWindow::negativeMessage()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Wrong password");
+    msgBox.show();
+
+    m_display->setText( "Wrong password" );
+    QPalette palette = m_display->palette();
+    palette.setColor( QPalette::Base, Qt::red );
+    m_display->setPalette( palette );
+
+    QTime delay = QTime::currentTime().addSecs( NEGATIVE_MSG_PRESENTAION_TIME_SEC );
+        while (QTime::currentTime() < delay)
+            QCoreApplication::processEvents(QEventLoop::AllEvents);
+
+    palette.setColor( QPalette::Base, Qt::white );
+    m_display->setPalette( palette );
+    m_display->setText( "" );
+
 }

@@ -4,9 +4,9 @@
 
 
 //Firebse data
-//#define API_KEY         hidden data
-//#define LOGIN_MAIL      hidden data
-//#define LOGIN_PASS      hidden data
+//#define API_KEY
+//#define LOGIN_MAIL
+//#define LOGIN_PASS
 #define STR_URL_EVENT   "https://projectlockraspi-default-rtdb.europe-west1.firebasedatabase.app/event.json?auth="
 #define STR_URL_KEYS    "https://projectlockraspi-default-rtdb.europe-west1.firebasedatabase.app/keys.json?auth="
 #define STR_URL_SIGN_IN "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key="
@@ -37,6 +37,8 @@
 //keybord data
 #define MAX_TEXT_LENGTH         7 // max number of digits on display
 #define INPUT_READ_PERIOD_MILI_SEC  1000 //input from door position will be read with this period
+#define OPEN_LOCK_TIME_SEC      10 //time that lock will be opened
+#define NEGATIVE_MSG_PRESENTAION_TIME_SEC   5 //time that negative message will be presented
 
 #define CLOSE_APP_PASS          "0000000"
 

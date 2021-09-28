@@ -16,5 +16,7 @@ int main(int argc, char *argv[])
     mainWindow.show();
     mainWindow.showMaximized();
 
+    QGuiApplication::setQuitOnLastWindowClosed( false);
+
     return a.exec();
 }

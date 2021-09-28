@@ -13,6 +13,8 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QTimer>
+#include <QMessageBox>
+
 
 #ifdef SIMULATION_PC
     #include <QTextEdit>
@@ -35,6 +37,7 @@ class MainWindow : public QWidget
     void handleEnterButton();
     void checkInput();
     void openLock();
+    void negativeMessage();
   private:
     //void checkPassword();
     Firebase m_firebase;
